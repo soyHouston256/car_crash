@@ -1,0 +1,22 @@
+org: datacience
+service: api-salary-prediction
+
+provider:
+  name: aws
+  runtime: python3.12
+  memorySize: 1024
+  timeout: 20
+  environment:
+    BUCKET_NAME: crash-rekognition
+  iam:
+    role: arn:aws:iam::211125379617:role/LabRole
+
+functions:
+  upload-image:
+    handler: CrashPrediction.lambda_handler
+    events:
+      - http:
+          path: /upload-image
+          method: post
+          cors: true
+          integration: lambda
