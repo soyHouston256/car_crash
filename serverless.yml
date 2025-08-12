@@ -9,7 +9,7 @@ provider:
   environment:
     BUCKET_NAME: car-classifier-ml
   iam:
-    role: arn:aws:iam::211125379617:role/LabRole
+    role: arn:aws:iam::992382769661:role/LabRole
 
 functions:
   upload-image:
