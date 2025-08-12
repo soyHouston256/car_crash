@@ -10,8 +10,13 @@ BUCKET_NAME = os.environ.get('BUCKET_NAME', 'mi-bucket-imagenes')
 
 def lambda_handler(event, context):
     try:
+        # Debug logging
+        print(f"Event received: {json.dumps(event, indent=2)}")
+        print(f"HTTP Method: {event.get('httpMethod')}")
+        print(f"Request Context: {event.get('requestContext', {})}")
+        
         if event.get('httpMethod') != 'POST':
-            return response(405, {'error': 'Método no permitido'})
+            return response(405, {'error': f'Método no permitido. Recibido: {event.get("httpMethod")}'})
         
         # Extraer imagen
         body = json.loads(event['body'])
@@ -34,6 +39,7 @@ def lambda_handler(event, context):
         })
         
     except Exception as e:
+        print(f"Error: {str(e)}")
         return response(500, {'error': str(e)})
 
 def response(status_code, body):
