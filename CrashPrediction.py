@@ -15,7 +15,7 @@ def show_custom_labels(model,bucket,photo, min_confidence):
     response = client.detect_custom_labels(Image={'S3Object': {'Bucket': bucket, 'Name': photo}},
         MinConfidence=min_confidence,
         ProjectVersionArn=model)
-
+    print('response_show_custom_labels', response)
     # For object detection use case, uncomment below code to display image.
     # display_image(bucket,photo,response)
 
@@ -57,8 +57,8 @@ def lambda_handler(event, context):
         print("Custom labels detected: " + str(label_count))
         
         return response(200, {
-            'name': str(label_count.CustomLabels.Name),
-            'confidence': str(label_count.CustomLabels.Confidence)
+            'name': str(label_count.Name),
+            'confidence': str(label_count.Confidence)
         })
         
     except Exception as e:
