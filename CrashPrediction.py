@@ -23,7 +23,8 @@ def lambda_handler(event, context):
         image_data = base64.b64decode(body['image'])
         
         # Generar nombre único
-        filename = f"images/{datetime.now().strftime('%Y/%m/%d')}/{uuid.uuid4()}.jpg"
+        #filename = f"images/{datetime.now().strftime('%Y/%m/%d')}/{uuid.uuid4()}.jpg"
+        filename = f"test/{uuid.uuid4()}.jpg"
         
         # Subir a S3
         s3_client.put_object(

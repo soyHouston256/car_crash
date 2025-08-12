@@ -7,7 +7,7 @@ provider:
   memorySize: 1024
   timeout: 20
   environment:
-    BUCKET_NAME: crash-rekognition
+    BUCKET_NAME: car-classifier-ml
   iam:
     role: arn:aws:iam::211125379617:role/LabRole
 
