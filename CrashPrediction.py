@@ -19,7 +19,7 @@ def show_custom_labels(model,bucket,photo, min_confidence):
     # For object detection use case, uncomment below code to display image.
     # display_image(bucket,photo,response)
 
-    return len(response['CustomLabels'])
+    return response['CustomLabels']
 
 def lambda_handler(event, context):
     try:
@@ -53,13 +53,25 @@ def lambda_handler(event, context):
         model='arn:aws:rekognition:us-east-1:992382769661:project/car-classifierv2/version/car-classifierv2.2025-08-11T11.29.01/1754929741944'
         min_confidence=90
 
-        label_count=show_custom_labels(model,BUCKET_NAME,filename, min_confidence)
-        print("Custom labels detected: " + str(label_count))
+        custom_labels = show_custom_labels(model,BUCKET_NAME,filename, min_confidence)
+        print("Custom labels detected: " + str(len(custom_labels)))
         
-        return response(200, {
-            'name': str(label_count.Name),
-            'confidence': str(label_count.Confidence)
-        })
+        # Preparar respuesta con las etiquetas detectadas
+        if custom_labels:
+            # Si se detectaron etiquetas, devolver la primera
+            first_label = custom_labels[0]
+            return response(200, {
+                'name': first_label['Name'],
+                'confidence': str(first_label['Confidence']),
+                'labels_count': len(custom_labels)
+            })
+        else:
+            # Si no se detectaron etiquetas
+            return response(200, {
+                'name': 'No labels detected',
+                'confidence': '0',
+                'labels_count': 0
+            })
         
     except Exception as e:
         print(f"Error: {str(e)}")
