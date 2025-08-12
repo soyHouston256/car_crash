@@ -8,6 +8,19 @@ import os
 s3_client = boto3.client('s3')
 BUCKET_NAME = os.environ.get('BUCKET_NAME', 'mi-bucket-imagenes')
 
+def show_custom_labels(model,bucket,photo, min_confidence):
+    client=boto3.client('rekognition')
+
+    #Call DetectCustomLabels
+    response = client.detect_custom_labels(Image={'S3Object': {'Bucket': bucket, 'Name': photo}},
+        MinConfidence=min_confidence,
+        ProjectVersionArn=model)
+
+    # For object detection use case, uncomment below code to display image.
+    # display_image(bucket,photo,response)
+
+    return len(response['CustomLabels'])
+
 def lambda_handler(event, context):
     try:
         # Debug logging
@@ -33,10 +46,19 @@ def lambda_handler(event, context):
             Body=image_data,
             ContentType='image/jpeg'
         )
+        #defmain():
+
+        # bucket='MY_BUCKET'
+        # photo='MY_IMAGE_KEY'
+        model='arn:aws:rekognition:us-east-1:992382769661:project/car-classifierv2/version/car-classifierv2.2025-08-11T11.29.01/1754929741944'
+        min_confidence=90
+
+        label_count=show_custom_labels(model,BUCKET_NAME,filename, min_confidence)
+        print("Custom labels detected: " + str(label_count))
         
         return response(200, {
-            'message': 'Imagen subida exitosamente',
-            'url': f"https://{BUCKET_NAME}.s3.amazonaws.com/{filename}"
+            'name': str(label_count.CustomLabels.Name),
+            'confidence': str(label_count.CustomLabels.Confidence)
         })
         
     except Exception as e:
