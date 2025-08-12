@@ -12,14 +12,14 @@ def lambda_handler(event, context):
     try:
         # Debug logging
         print(f"Event received: {json.dumps(event, indent=2)}")
-        print(f"HTTP Method: {event.get('httpMethod')}")
+        print(f"HTTP Method: {event.get('method')}")
         print(f"Request Context: {event.get('requestContext', {})}")
         
-        if event.get('httpMethod') != 'POST':
-            return response(405, {'error': f'Método no permitido. Recibido: {event.get("httpMethod")}'})
+        if event.get('method') != 'POST':
+            return response(405, {'error': f'Método no permitido. Recibido: {event.get("method")}'})
         
         # Extraer imagen
-        body = json.loads(event['body'])
+        body = event['body']  # El body ya es un objeto, no necesita json.loads()
         image_data = base64.b64decode(body['image'])
         
         # Generar nombre único
