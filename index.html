@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de Siniestros</title>
+    <!-- Tailwind CSS para un diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilo para el loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Estilo para la vista previa */
+        #preview-container {
+            display: none;
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed #d1d5db;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        #image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            margin: 1rem auto 0;
+            border-radius: 0.5rem;
+        }
+        
+        /* --- Estilos para Animaciones de Resultado --- */
+        .result-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Animación para Checkmark (Aprobado) */
+        .checkmark__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #4ade80; /* green-400 */
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .checkmark__check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            stroke-width: 3;
+            stroke: #4ade80; /* green-400 */
+            fill: none;
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+
+        /* Animación para Cross (Rechazado) */
+        .cross__circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 2;
+            stroke-miterlimit: 10;
+            stroke: #f87171; /* red-400 */
+            fill: none;
+            animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+        }
+        .cross__line {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            stroke-width: 3;
+            stroke: #f87171; /* red-400 */
+            fill: none;
+        }
+        .cross__line--1 {
+             animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.8s forwards;
+        }
+        .cross__line--2 {
+            animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.9s forwards;
+        }
+
+        @keyframes stroke {
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-2xl">
+        <div class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+            
+            <header class="text-center mb-8">
+                <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Validador de Siniestros</h1>
+                <p class="text-gray-500 mt-2">Sube la imagen de tu siniestro de tránsito para su evaluación.</p>
+            </header>
+
+            <!-- Sección de Subida de Archivos -->
+            <div class="mb-6 p-6 bg-gray-50 rounded-xl border border-gray-200">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">1. Selecciona una Imagen</h2>
+                <input type="file" id="file-input" accept="image/*" class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100
+                "/>
+            </div>
+
+            <!-- Vista Previa de la Imagen -->
+            <div id="preview-container" class="mb-6">
+                <p class="text-gray-600">Vista Previa:</p>
+                <img id="image-preview" src="#" alt="Vista previa de la imagen" />
+            </div>
+
+            <!-- Botón de Envío -->
+            <div class="text-center mb-8">
+                <button id="upload-button" class="w-full sm:w-auto flex items-center justify-center px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 15l-4-4m0 0l4-4m-4 4h12"></path></svg>
+                    Validar Siniestro
+                </button>
+            </div>
+
+            <!-- Sección de Resultados -->
+            <div id="results-section" class="hidden">
+                <!-- Resultado Animado -->
+                <div id="animation-result" class="hidden text-center p-6 border-2 rounded-xl mb-6">
+                    <div id="animation-icon-container" class="result-icon w-24 h-24 mx-auto mb-4">
+                        <!-- SVG Icono se inyectará aquí -->
+                    </div>
+                    <h3 id="animation-title" class="text-2xl font-bold"></h3>
+                    <p id="animation-description" class="text-gray-600 mt-2"></p>
+                </div>
+
+                <!-- Respuesta del Servidor (opcional, para depuración) -->
+                <div id="server-response-container" class="p-6 bg-gray-50 rounded-xl border border-gray-200">
+                    <h2 class="text-xl font-semibold text-gray-700 mb-4">Respuesta del Servidor</h2>
+                    <div id="status" class="text-center p-4 rounded-lg mb-4"></div>
+                    <div>
+                        <pre id="response-output" class="w-full p-3 bg-gray-900 text-white rounded-lg text-sm overflow-x-auto"></pre>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <footer class="text-center mt-8 text-gray-500 text-sm">
+            <p>Developed by UTEC.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Referencias a los elementos del DOM
+        const fileInput = document.getElementById('file-input');
+        const uploadButton = document.getElementById('upload-button');
+        const previewContainer = document.getElementById('preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const statusDiv = document.getElementById('status');
+        const resultsSection = document.getElementById('results-section');
+        const responseOutput = document.getElementById('response-output');
+        const animationResultDiv = document.getElementById('animation-result');
+        const animationIconContainer = document.getElementById('animation-icon-container');
+        const animationTitle = document.getElementById('animation-title');
+        const animationDescription = document.getElementById('animation-description');
+
+        let base64ImageString = '';
+
+        // Event listener para la selección de archivo
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewContainer.style.display = 'block';
+                base64ImageString = e.target.result.split(',')[1];
+                uploadButton.disabled = false;
+                resultsSection.classList.add('hidden'); // Ocultar resultados anteriores
+                animationResultDiv.classList.add('hidden');
+            };
+            reader.onerror = (error) => {
+                console.error('Error al leer el archivo:', error);
+                showStatus('Error al leer el archivo.', 'error');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Event listener para el botón de subida
+        uploadButton.addEventListener('click', async () => {
+            if (!base64ImageString) {
+                showStatus('No hay imagen seleccionada para enviar.', 'error');
+                return;
+            }
+            const lambdaEndpoint = 'https://dvuxt74oye.execute-api.us-east-1.amazonaws.com/dev/upload-image';
+            
+            showStatus('Validando imagen... <div class="loader inline-block ml-2"></div>', 'info');
+            responseOutput.textContent = '';
+            animationResultDiv.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+
+            const payload = { image: base64ImageString };
+
+            try {
+                const response = await fetch(lambdaEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status}`);
+                }
+                
+                showStatus('¡Validación completa!', 'success');
+                responseOutput.textContent = JSON.stringify(result, null, 2);
+
+                // Parsear el body que viene como string
+                const bodyData = JSON.parse(result.body);
+                const classification = bodyData.name;
+                const confidence = parseFloat(bodyData.confidence).toFixed(2);
+
+                if (classification === 'crash' || classification === 'soft crash') {
+                    displayAnimatedResult('approved', classification, confidence);
+                } else if (classification === 'safe') {
+                    displayAnimatedResult('denied', classification, confidence);
+                } else {
+                    // Manejar caso desconocido si es necesario
+                    animationResultDiv.classList.add('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error al enviar a Lambda:', error);
+                showStatus(`Error en la petición: ${error.message}`, 'error');
+                responseOutput.textContent = `Detalles del error: ${error}`;
+                animationResultDiv.classList.add('hidden');
+            }
+        });
+
+        /**
+         * Muestra el resultado final con una animación.
+         * @param {'approved'|'denied'} type - El tipo de resultado.
+         * @param {string} classification - La clasificación recibida.
+         * @param {string} confidence - El porcentaje de confianza.
+         */
+        function displayAnimatedResult(type, classification, confidence) {
+            let iconHtml = '';
+            let title = '';
+            let description = '';
+            let borderColor = '';
+            let titleColor = '';
+
+            if (type === 'approved') {
+                iconHtml = `
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>`;
+                title = 'Siniestro Cubierto';
+                description = `El seguro se hará cargo de tu accidente.<br>Clasificación: <strong>${classification}</strong> | Confianza: <strong>${confidence}%</strong>`;
+                borderColor = 'border-green-400';
+                titleColor = 'text-green-600';
+            } else { // 'denied'
+                iconHtml = `
+                    <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="cross__circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="cross__line cross__line--1" fill="none" d="M16 16 36 36"/>
+                        <path class="cross__line cross__line--2" fill="none" d="M36 16 16 36"/>
+                    </svg>`;
+                title = 'Siniestro No Cubierto';
+                description = `Tu póliza no cubre este tipo de evento.<br>Clasificación: <strong>${classification}</strong> | Confianza: <strong>${confidence}%</strong>`;
+                borderColor = 'border-red-400';
+                titleColor = 'text-red-600';
+            }
+
+            animationIconContainer.innerHTML = iconHtml;
+            animationTitle.textContent = title;
+            animationDescription.innerHTML = description;
+
+            animationTitle.className = `text-2xl font-bold ${titleColor}`;
+            animationResultDiv.className = `text-center p-6 border-2 rounded-xl mb-6 ${borderColor}`;
+            animationResultDiv.classList.remove('hidden');
+        }
+
+        /**
+         * Muestra un mensaje de estado en la sección de depuración.
+         * @param {string} message - El mensaje a mostrar.
+         * @param {'info'|'success'|'error'} type - El tipo de mensaje.
+         */
+        function showStatus(message, type) {
+            resultsSection.classList.remove('hidden');
+            statusDiv.innerHTML = message;
+            statusDiv.className = 'text-center p-4 rounded-lg mb-4 ';
+
+            switch (type) {
+                case 'info':
+                    statusDiv.classList.add('bg-blue-100', 'text-blue-700');
+                    break;
+                case 'success':
+                    statusDiv.classList.add('bg-green-100', 'text-green-700');
+                    break;
+                case 'error':
+                    statusDiv.classList.add('bg-red-100', 'text-red-700');
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -46,8 +46,7 @@ def lambda_handler(event, context):
             Body=image_data,
             ContentType='image/jpeg'
         )
-
-        model='arn:aws:rekognition:us-east-1:992382769661:project/car-classifierv2/version/car-classifierv2.2025-08-11T11.29.01/1754929741944'
+        model='arn:aws:rekognition:us-east-1:838113330463:project/car-classifierv2/version/car-classifierv2.2025-08-16T14.59.21/1755374362225'
         min_confidence=90
 
         custom_labels = show_custom_labels(model,BUCKET_NAME,filename, min_confidence)
