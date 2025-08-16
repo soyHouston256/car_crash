@@ -48,7 +48,7 @@ def lambda_handler(event, context):
         )
         #model='arn:aws:rekognition:us-east-1:838113330463:project/car-classifierv2/version/car-classifierv2.2025-08-16T14.59.21/1755374362225'
         model='arn:aws:rekognition:us-east-1:838113330463:project/car-classifierv2/version/car-classifierv2.2025-08-16T15.42.05/1755376926630'
-        min_confidence=75
+        min_confidence=80
 
         custom_labels = show_custom_labels(model,BUCKET_NAME,filename, min_confidence)
         print("Custom labels detected: " + str(len(custom_labels)))
