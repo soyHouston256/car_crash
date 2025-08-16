@@ -46,10 +46,7 @@ def lambda_handler(event, context):
             Body=image_data,
             ContentType='image/jpeg'
         )
-        #defmain():
 
-        # bucket='MY_BUCKET'
-        # photo='MY_IMAGE_KEY'
         model='arn:aws:rekognition:us-east-1:992382769661:project/car-classifierv2/version/car-classifierv2.2025-08-11T11.29.01/1754929741944'
         min_confidence=90
 

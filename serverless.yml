@@ -7,9 +7,9 @@ provider:
   memorySize: 1024
   timeout: 20
   environment:
-    BUCKET_NAME: car-classifier-ml
+    BUCKET_NAME: car-model-bck
   iam:
-    role: arn:aws:iam::992382769661:role/LabRole
+    role: arn:aws:iam::838113330463:role/LabRole
 
 functions:
   upload-image:
